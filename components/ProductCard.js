@@ -1,19 +1,29 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const ProductCard = () => {
+const ProductCard = ({title, description, price, image, onPress}) => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.card}>
-      <Image 
-        source={{ uri: 'https://via.placeholder.com/150' }} 
-        style={styles.image} 
+      <Image
+        source={image}
+        style={styles.image}
       />
-      <Text style={styles.title}>Product Naam</Text>
-      <Text style={styles.description}>Dit is een korte beschrijving van het product. Het ziet er nu al goed uit!</Text>
-      <Button title="Bestel nu" color="#FF6347" onPress={() => alert('Besteld!')} />
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>
+        {description}
+      </Text>
+      <Button
+        title="Bestel nu"
+        color="#FF6347"
+        onPress={onPress}
+      />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   card: {
