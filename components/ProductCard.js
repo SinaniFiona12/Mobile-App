@@ -1,29 +1,26 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-const ProductCard = ({title, description, price, image, onPress}) => {
-  const navigation = useNavigation();
-
+const ProductCard = ({ title, description, price, image, onPress }) => {
   return (
     <View style={styles.card}>
       <Image
-        source={image}
+        source={image || { uri: 'https://reactnative.dev/img/tiny_logo.png' }}
         style={styles.image}
       />
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title}>{title || "Product Naam"}</Text>
       <Text style={styles.description}>
-        {description}
+        {description || "Dit is een korte beschrijving."}
       </Text>
+      
       <Button
         title="Bestel nu"
-        color="#FF6347"
+        color="#FF69B4" 
         onPress={onPress}
       />
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   card: {
@@ -49,7 +46,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: '#666',
-    marginVertical: 5,
+    marginVertical: 10,
   },
 });
 
