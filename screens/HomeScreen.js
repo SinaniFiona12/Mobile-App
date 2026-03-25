@@ -1,12 +1,23 @@
-import React, { use, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TextInput, Switch, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TextInput, Switch, Pressable } from 'react-native';
 import ProductCard from '../components/ProductCard';
+import { Picker } from '@react-native-picker/picker';
+
+const categoryNames = {
+  "": "Alle categorieën",
+  "699f1c417be611fc818a8ed1": "other",
+  "699ef98c01b0cf73dbedd440": "Brushes",
+  "699f13c379978f7f9353d3f1": "makeup",
+  "699f13189064a4db62a2ef2e": "texture",
+};
 
 const HomeScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
+    // JOUW ORIGINELE FETCH CODE (met 2 kleine veiligheidsaanpassingen)
     fetch(
       "https://api.webflow.com/v2/sites/698c7fccd5523d8c665d8dee/products",
       {
@@ -22,7 +33,13 @@ const HomeScreen = ({ navigation }) => {
           id: item.product.id,
           title: item.product.fieldData.name,
           subtitle: item.product.fieldData.description,
-          price: (item.skus[0]?.fieldData.price.value || 0) / 100,
+          price: (item.skus[0]?.fieldData?.price?.value || 0) / 100, // Extra vraagtekens voor de zekerheid
+          
+          // Let op: category staat nu BUITEN image, en met veilige checks (?.)
+          category: item.product.fieldData.category 
+            ? categoryNames[item.product.fieldData.category[0]] || "Onbekende categorie" 
+            : "Onbekende categorie",
+            
           image: {
             uri: item.skus[0]?.fieldData["main-image"]?.url,
           },
@@ -34,6 +51,11 @@ const HomeScreen = ({ navigation }) => {
         console.error("Error fetching products:", error)
       );
   }, []);
+
+  // JOUW FILTER LOGICA
+  const filteredProducts = selectedCategory
+    ? products.filter(product => product.category === selectedCategory)
+    : products;
 
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -56,6 +78,19 @@ const HomeScreen = ({ navigation }) => {
         <Switch onValueChange={toggleSwitch} value={isEnabled} />
       </View>
 
+      {/* JOUW PICKER CODE */}
+      <Picker
+        selectedValue={selectedCategory}
+        onValueChange={setSelectedCategory}
+        style={styles.picker}
+      >
+        <Picker.Item label="Alle categorieën" value="" />
+        <Picker.Item label="Other" value="other" />
+        <Picker.Item label="Brushes" value="Brushes" />
+        <Picker.Item label="Makeup" value="makeup" />
+        <Picker.Item label="Texture" value="texture" />
+      </Picker>
+
       <Pressable 
         style={styles.button} 
         onPress={() => {}} 
@@ -65,7 +100,8 @@ const HomeScreen = ({ navigation }) => {
 
       <Text style={styles.sectionTitle}>Onze Producten</Text>
       
-      {products.map((product) => (
+      {/* LUS OVER DE GEFILTERDE PRODUCTEN */}
+      {filteredProducts.map((product) => (
         <ProductCard
           key={product.id}
           title={product.title}
@@ -77,6 +113,7 @@ const HomeScreen = ({ navigation }) => {
           }
         />
       ))}
+
     </ScrollView>
   );
 }
@@ -86,13 +123,13 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20, paddingTop: 50, paddingBottom: 100 },
   header: { alignItems: 'center', marginBottom: 20 },
   headerText: { fontSize: 24, fontWeight: 'bold' },
-  logo: { width: 50, height: 50, marginTop: 10 },
   inputSection: { marginVertical: 10 },
-  input: { height: 40, borderColor: 'gray', borderBottomWidth: 1, paddingHorizontal: 10 },
+  input: { height: 40, borderColor: 'gray', borderBottomWidth: 1, paddingHorizontal: 10, backgroundColor: '#fff', borderRadius: 5 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
   button: { backgroundColor: '#FFB6C1', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 10 },
   buttonText: { color: 'white', fontWeight: 'bold' },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 30 },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 30, marginBottom: 10 },
+  picker: { backgroundColor: '#fff', marginVertical: 10, borderRadius: 5 }
 });
 
 export default HomeScreen;
