@@ -1,9 +1,40 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TextInput, Switch, Pressable } from 'react-native';
 import ProductCard from '../components/ProductCard';
 
 const HomeScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch(
+      "https://api.webflow.com/v2/sites/698c7fccd5523d8c665d8dee/products",
+      {
+        headers: {
+          Authorization:
+            "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const formattedProducts = data.items.map((item) => ({
+          id: item.product.id,
+          title: item.product.fieldData.name,
+          subtitle: item.product.fieldData.description,
+          price: (item.skus[0]?.fieldData.price.value || 0) / 100,
+          image: {
+            uri: item.skus[0]?.fieldData["main-image"]?.url,
+          },
+        }));
+
+        setProducts(formattedProducts);
+      })
+      .catch((error) =>
+        console.error("Error fetching products:", error)
+      );
+  }, []);
+
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   return (
@@ -11,71 +42,46 @@ const HomeScreen = ({ navigation }) => {
       style={styles.scrollWindow} 
       contentContainerStyle={styles.scrollContent}
     >
-      {}
-    {}
-    <View style={styles.header}>
+      <View style={styles.header}>
         <Text style={styles.headerText}>Mijn Mobile App</Text>
       </View>
 
-      {}
       <View style={styles.inputSection}>
         <Text>Zoek een product:</Text>
         <TextInput style={styles.input} placeholder="Typ hier iets..." />
       </View>
 
-      {}
       <View style={styles.row}>
         <Text>Meldingen ontvangen?</Text>
         <Switch onValueChange={toggleSwitch} value={isEnabled} />
       </View>
 
-{}
-<Pressable 
+      <Pressable 
         style={styles.button} 
         onPress={() => {}} 
       >
         <Text style={styles.buttonText}>Zoeken</Text>
       </Pressable>
 
-      {}
       <Text style={styles.sectionTitle}>Onze Producten</Text>
       
-      <ProductCard
-        title="Borstel (Brush)"
-        description="Een super zachte borstel voor je haar."
-        price="30"
-        image={require("../assets/haarborstel.jpg")}
-        onPress={() =>
-          navigation.navigate("ProductDetail", {
-            title: "Borstel (Brush)",
-            description: "Een super zachte borstel voor je haar.",
-            price: "30",
-            image: require("../assets/icon.png"),
-          })
-        }
-      />
-
-      <ProductCard
-        title="Shampoo"
-        description="Ruikt heerlijk naar bloemen."
-        price="15"
-        image={require("../assets/Shampoo.webp")}
-        onPress={() =>
-          navigation.navigate("ProductDetail", {
-            title: "Shampoo",
-            description: "Ruikt heerlijk naar bloemen.",
-            price: "15",
-            image: require("../assets/icon.png"),
-          })
-        }
-      />
-
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          title={product.title}
+          description={product.subtitle}
+          price={product.price}
+          image={product.image}
+          onPress={() =>
+            navigation.navigate("ProductDetail", product)
+          }
+        />
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  
   scrollWindow: { flex: 1, backgroundColor: '#f5f5f5' },
   scrollContent: { padding: 20, paddingTop: 50, paddingBottom: 100 },
   header: { alignItems: 'center', marginBottom: 20 },
