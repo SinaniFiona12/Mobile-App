@@ -15,6 +15,8 @@ const HomeScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("price-asc");
 
   useEffect(() => {
     // JOUW ORIGINELE FETCH CODE (met 2 kleine veiligheidsaanpassingen)
@@ -53,9 +55,20 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   // JOUW FILTER LOGICA
-  const filteredProducts = selectedCategory
-    ? products.filter(product => product.category === selectedCategory)
-    : products;
+  const filteredProducts = products.filter(
+    (p) =>
+      (selectedCategory === "" || p.category === selectedCategory) &&
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOption === "price-asc") return a.price - b.price;
+    if (sortOption === "price-desc") return b.price - a.price;
+    if (sortOption === "name-asc") return a.title.localeCompare(b.title);
+    if (sortOption === "name-desc") return b.title.localeCompare(a.title);
+    return 0;
+  });
+
 
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -70,7 +83,12 @@ const HomeScreen = ({ navigation }) => {
 
       <View style={styles.inputSection}>
         <Text>Zoek een product:</Text>
-        <TextInput style={styles.input} placeholder="Typ hier iets..." />
+        <TextInput 
+          style={styles.input}
+          placeholder="Typ hier..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
 
       <View style={styles.row}>
@@ -80,15 +98,14 @@ const HomeScreen = ({ navigation }) => {
 
       {/* JOUW PICKER CODE */}
       <Picker
-        selectedValue={selectedCategory}
-        onValueChange={setSelectedCategory}
+        selectedValue={sortOption}
+        onValueChange={setSortOption}
         style={styles.picker}
       >
-        <Picker.Item label="Alle categorieën" value="" />
-        <Picker.Item label="Other" value="other" />
-        <Picker.Item label="Brushes" value="Brushes" />
-        <Picker.Item label="Makeup" value="makeup" />
-        <Picker.Item label="Texture" value="texture" />
+        <Picker.Item label="Prijs: Laag naar Hoog" value="price-asc" />
+        <Picker.Item label="Prijs: Hoog naar Laag" value="price-desc" />
+        <Picker.Item label="Naam: A-Z" value="name-asc" />
+        <Picker.Item label="Naam: Z-A" value="name-desc" />
       </Picker>
 
       <Pressable 
@@ -101,7 +118,7 @@ const HomeScreen = ({ navigation }) => {
       <Text style={styles.sectionTitle}>Onze Producten</Text>
       
       {/* LUS OVER DE GEFILTERDE PRODUCTEN */}
-      {filteredProducts.map((product) => (
+      {sortedProducts.map((product) => (
         <ProductCard
           key={product.id}
           title={product.title}
