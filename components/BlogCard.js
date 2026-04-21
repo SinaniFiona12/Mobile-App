@@ -29,49 +29,34 @@ const BlogCard = ({ title, description, image, onPress }) => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 15,
-    overflow: 'hidden',
-    borderColor: '#ddd',
-    borderWidth: 1,
-    
-    elevation: 2, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  image: {
-    width: '100%',
-    height: 150, 
-    resizeMode: 'cover',
-  },
-  placeholderImage: {
-    width: '100%',
-    height: 150,
-    backgroundColor: '#eee',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#888',
-  },
-  textContainer: {
-    padding: 15,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-});
+    card: {
+      backgroundColor: '#ffffff',
+      borderRadius: 12,
+      marginBottom: 20,
+      overflow: 'hidden',
+      borderColor: '#a24e4e',
+      borderWidth: 0.5,
+      elevation: 2,
+    },
+    image: {
+      width: '100%',
+      height: 150,
+      resizeMode: 'cover',
+    },
+    textContainer: {
+      padding: 15,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '300',
+      color: '#a24e4e', // Titel in de thema kleur
+      marginBottom: 5,
+    },
+    description: {
+      fontSize: 14,
+      color: 'black',
+      lineHeight: 20,
+    },
+  });
 
 export default BlogCard;

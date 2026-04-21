@@ -167,18 +167,70 @@ const formattedBlogs = (blogsData?.items || []).map((item) => {
 }
 
 const styles = StyleSheet.create({
-  scrollWindow: { flex: 1, backgroundColor: '#f5f5f5' },
-  scrollContent: { padding: 20, paddingTop: 50, paddingBottom: 100 },
-  header: { alignItems: 'center', marginBottom: 20 },
-  headerText: { fontSize: 24, fontWeight: 'bold' },
-  label: { fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
-  inputSection: { marginVertical: 10 },
-  input: { height: 40, borderColor: 'gray', borderBottomWidth: 1, paddingHorizontal: 10, backgroundColor: '#fff', borderRadius: 5 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
-  button: { backgroundColor: '#FFB6C1', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: 'white', fontWeight: 'bold' },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 30, marginBottom: 10 },
-  picker: { backgroundColor: '#fff', marginBottom: 15, borderRadius: 5 }
+  scrollWindow: { 
+    flex: 1, 
+    backgroundColor: '#fff5ef' // Jouw 'Soie' achtergrondkleur
+  },
+  scrollContent: { 
+    padding: 20, 
+    paddingTop: 50, 
+    paddingBottom: 100 
+  },
+  header: { 
+    alignItems: 'center', 
+    marginBottom: 20 
+  },
+  headerText: { 
+    fontSize: 32, // Iets groter gemaakt voor een mooie titel
+    fontWeight: '300', // Licht lettertype (simuleert CMU Extra Light)
+    color: '#a24e4e' // Jouw titelkleur
+  },
+  label: { 
+    fontWeight: '400', // Simuleert Muli Normal
+    color: 'black', // Jouw tekstkleur
+    marginTop: 10, 
+    marginBottom: 5 
+  },
+  inputSection: { 
+    marginVertical: 10 
+  },
+  input: { 
+    height: 40, 
+    borderColor: '#a24e4e', // Lijn in jouw kleur
+    borderBottomWidth: 1, 
+    paddingHorizontal: 10, 
+    backgroundColor: '#fff', 
+    borderRadius: 5 
+  },
+  row: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginVertical: 10 
+  },
+  button: { 
+    backgroundColor: '#a24e4e', 
+    padding: 15, 
+    borderRadius: 5, 
+    alignItems: 'center', 
+    marginTop: 10 
+  },
+  buttonText: { 
+    color: '#FFFFFF', 
+    fontWeight: '400' 
+  },
+  sectionTitle: { 
+    fontSize: 22, 
+    fontWeight: '300', 
+    color: '#a24e4e', 
+    marginTop: 30, 
+    marginBottom: 10 
+  },
+  picker: { 
+    backgroundColor: '#fff', 
+    marginBottom: 15, 
+    borderRadius: 5 
+  }
 });
 
 export default HomeScreen;

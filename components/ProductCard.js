@@ -24,29 +24,43 @@ const ProductCard = ({ title, description, price, image, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 10,
-    shadowColor: '#000',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    marginBottom: 20,
+    overflow: 'hidden',
+    // Een subtiel randje in de 'Soie' kleur maakt het meer één geheel
+    borderColor: '#a24e4e', 
+    borderWidth: 0.5,
+    // Schaduw voor luxe uitstraling
+    elevation: 3,
+    shadowColor: '#a24e4e',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3, // Voor Android schaduw
+    shadowRadius: 4,
   },
   image: {
     width: '100%',
-    height: 150,
-    borderRadius: 8,
+    height: 180,
+    resizeMode: 'cover',
+  },
+  infoContainer: {
+    padding: 15,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
+    fontWeight: '300', // Elegante lichte letters
+    color: '#a24e4e',   // Jouw button kleur
+    marginBottom: 5,
   },
   description: {
     fontSize: 14,
-    color: '#666',
-    marginVertical: 10,
+    color: 'black',
+    marginBottom: 10,
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#a24e4e',   // Prijs in dezelfde kleur als de button
   },
 });
 

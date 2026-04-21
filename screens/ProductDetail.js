@@ -50,24 +50,38 @@ const ProductDetail = ({ route }) => {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 20, paddingTop: 50, alignItems: 'center' },
-  image: { width: 200, height: 200, borderRadius: 10, marginBottom: 20 },
-  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 10 },
-  description: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 20 },
-  price: { fontSize: 20, fontWeight: 'bold', color: '#FF69B4', marginBottom: 30 },
-  
-  quantityContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
-  quantityText: { fontSize: 24, marginHorizontal: 20, fontWeight: 'bold' },
-  
-  button: { backgroundColor: '#FF69B4', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 5 },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 20 },
-  
-  totalPrice: { fontSize: 22, fontWeight: 'bold' },
-  totalPrice: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-  
-  actionButton: { backgroundColor: '#FFB6C1', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 20, width: '100%' },
-  actionButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
-
+  container: {
+    flex: 1,
+    backgroundColor: '#fff5ef', // Jouw 'Soie' achtergrondkleur
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    resizeMode: 'cover',
+  },
+  infoContainer: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '300', // Licht lettertype (simuleert CMU Extra Light)
+    color: '#a24e4e', // Jouw titelkleur
+    marginBottom: 10,
+  },
+  price: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#a24e4e', // Jouw titelkleur
+    marginBottom: 20,
+  },
+  description: {
+    fontSize: 16,
+    color: 'black', // Jouw tekstkleur
+    fontWeight: '400', // Simuleert Muli Normal
+    lineHeight: 24,
+    marginBottom: 30,
+  },
+  // ... de rest van je stijlen (zoals de + en - knoppen) kun je zo laten of ook #a24e4e geven!
 });
 
 export default ProductDetail;
