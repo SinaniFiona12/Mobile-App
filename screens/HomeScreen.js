@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Switch, Pressable } from 'react-native';
 import ProductCard from '../components/ProductCard';
+import BlogCard from '../components/BlogCard'; 
 import { Picker } from '@react-native-picker/picker';
 
 const categoryNames = {
@@ -13,76 +14,92 @@ const categoryNames = {
 
 const HomeScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
-  const [products, setProducts] = useState([]);
+  
+  const [items, setItems] = useState([]);
+  
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("price-asc");
 
   useEffect(() => {
-    // JOUW ORIGINELE FETCH CODE (met 2 kleine veiligheidsaanpassingen)
-    fetch(
-      "https://api.webflow.com/v2/sites/698c7fccd5523d8c665d8dee/products",
-      {
-        headers: {
-          Authorization:
-            "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        const formattedProducts = data.items.map((item) => ({
-          id: item.product.id,
-          title: item.product.fieldData.name,
-          subtitle: item.product.fieldData.description,
-          price: (item.skus[0]?.fieldData?.price?.value || 0) / 100, // Extra vraagtekens voor de zekerheid
-          
-          // Let op: category staat nu BUITEN image, en met veilige checks (?.)
-          category: item.product.fieldData.category 
+   
+    Promise.all([
+      fetch("https://api.webflow.com/v2/sites/698c7fccd5523d8c665d8dee/products", {
+        headers: { Authorization: "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48" }
+      }).then(res => res.json()),
+      
+      fetch("https://api.webflow.com/v2/collections/699efb39c644d9010bf09c68/items", {
+        headers: { Authorization: "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48" }
+      }).then(res => res.json())
+    ])
+    .then(([productsData, blogsData]) => {
+      
+      
+      const formattedProducts = (productsData?.items || []).map((item) => {
+        if (!item || !item.product) return null;
+        return {
+          type: "product", 
+          id: item.product.id || Math.random().toString(),
+          title: item.product.fieldData?.name || "Naamloos product",
+          subtitle: item.product.fieldData?.description || "",
+          price: (item.skus?.[0]?.fieldData?.price?.value || 0) / 100, 
+          category: item.product.fieldData?.category 
             ? categoryNames[item.product.fieldData.category[0]] || "Onbekende categorie" 
             : "Onbekende categorie",
-            
-          image: {
-            uri: item.skus[0]?.fieldData["main-image"]?.url,
-          },
-        }));
+          image: { uri: item.skus?.[0]?.fieldData?.["main-image"]?.url || null },
+        };
+      }).filter(p => p !== null);
 
-        setProducts(formattedProducts);
-      })
-      .catch((error) =>
-        console.error("Error fetching products:", error)
-      );
+     
+const formattedBlogs = (blogsData?.items || []).map((item) => {
+  if (!item) return null;
+  return {
+    type: "blog",
+    id: item.id || Math.random().toString(),
+    title: item.fieldData?.name || "Naamloze blog",
+    
+    
+    description: item.fieldData?.["post-body"] || item.fieldData?.["content"] || "Geen tekst gevonden",
+    
+    price: 0,
+    category: "Blogs", 
+    image: { uri: item.fieldData?.["main-image"]?.url || null },
+  };
+}).filter(b => b !== null);
+
+      
+      setItems([...formattedProducts, ...formattedBlogs]);
+    })
+    .catch(error => console.error("Error fetching data:", error));
   }, []);
 
-  // JOUW FILTER LOGICA
-  const filteredProducts = products.filter(
-    (p) =>
-      (selectedCategory === "" || p.category === selectedCategory) &&
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  
+  const filteredItems = items.filter(
+    (item) =>
+      (selectedCategory === "" || item.category === selectedCategory) &&
+      (item.title || "").toLowerCase().includes((searchQuery || "").toLowerCase())
   );
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  
+  const sortedItems = [...filteredItems].sort((a, b) => {
     if (sortOption === "price-asc") return a.price - b.price;
     if (sortOption === "price-desc") return b.price - a.price;
-    if (sortOption === "name-asc") return a.title.localeCompare(b.title);
-    if (sortOption === "name-desc") return b.title.localeCompare(a.title);
+    if (sortOption === "name-asc") return (a.title || "").localeCompare(b.title || "");
+    if (sortOption === "name-desc") return (b.title || "").localeCompare(a.title || "");
     return 0;
   });
-
 
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   return (
-    <ScrollView 
-      style={styles.scrollWindow} 
-      contentContainerStyle={styles.scrollContent}
-    >
+    <ScrollView style={styles.scrollWindow} contentContainerStyle={styles.scrollContent}>
+      
       <View style={styles.header}>
         <Text style={styles.headerText}>Mijn Mobile App</Text>
       </View>
 
       <View style={styles.inputSection}>
-        <Text>Zoek een product:</Text>
+        <Text style={styles.label}>Zoek een item:</Text>
         <TextInput 
           style={styles.input}
           placeholder="Typ hier..."
@@ -96,40 +113,54 @@ const HomeScreen = ({ navigation }) => {
         <Switch onValueChange={toggleSwitch} value={isEnabled} />
       </View>
 
-      {/* JOUW PICKER CODE */}
-      <Picker
-        selectedValue={sortOption}
-        onValueChange={setSortOption}
-        style={styles.picker}
-      >
+      <Text style={styles.label}>Filter op categorie:</Text>
+      <Picker selectedValue={selectedCategory} onValueChange={setSelectedCategory} style={styles.picker}>
+        <Picker.Item label="Alle items (Producten & Blogs)" value="" />
+        <Picker.Item label="Blogs" value="Blogs" />
+        <Picker.Item label="Other" value="other" />
+        <Picker.Item label="Brushes" value="Brushes" />
+        <Picker.Item label="Makeup" value="makeup" />
+        <Picker.Item label="Texture" value="texture" />
+      </Picker>
+
+      <Text style={styles.label}>Sorteer op:</Text>
+      <Picker selectedValue={sortOption} onValueChange={setSortOption} style={styles.picker}>
         <Picker.Item label="Prijs: Laag naar Hoog" value="price-asc" />
         <Picker.Item label="Prijs: Hoog naar Laag" value="price-desc" />
         <Picker.Item label="Naam: A-Z" value="name-asc" />
         <Picker.Item label="Naam: Z-A" value="name-desc" />
       </Picker>
 
-      <Pressable 
-        style={styles.button} 
-        onPress={() => {}} 
-      >
+      <Pressable style={styles.button} onPress={() => {}}>
         <Text style={styles.buttonText}>Zoeken</Text>
       </Pressable>
 
-      <Text style={styles.sectionTitle}>Onze Producten</Text>
+      <Text style={styles.sectionTitle}>Overzicht ({sortedItems.length})</Text>
       
-      {/* LUS OVER DE GEFILTERDE PRODUCTEN */}
-      {sortedProducts.map((product) => (
-        <ProductCard
-          key={product.id}
-          title={product.title}
-          description={product.subtitle}
-          price={product.price}
-          image={product.image}
-          onPress={() =>
-            navigation.navigate("ProductDetail", product)
-          }
-        />
-      ))}
+      {sortedItems.map((item) => {
+        if (item.type === "product") {
+          return (
+            <ProductCard
+              key={item.id}
+              title={item.title}
+              description={item.subtitle}
+              price={item.price}
+              image={item.image}
+              onPress={() => navigation.navigate("ProductDetail", item)}
+            />
+          );
+        } else if (item.type === "blog") {
+          return (
+            <BlogCard
+              key={item.id}
+              title={item.title}
+              description={item.subtitle}
+              image={item.image}
+              onPress={() => navigation.navigate("BlogDetail", item)}
+            />
+          );
+        }
+      })}
 
     </ScrollView>
   );
@@ -140,13 +171,14 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20, paddingTop: 50, paddingBottom: 100 },
   header: { alignItems: 'center', marginBottom: 20 },
   headerText: { fontSize: 24, fontWeight: 'bold' },
+  label: { fontWeight: 'bold', marginTop: 10, marginBottom: 5 },
   inputSection: { marginVertical: 10 },
   input: { height: 40, borderColor: 'gray', borderBottomWidth: 1, paddingHorizontal: 10, backgroundColor: '#fff', borderRadius: 5 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
   button: { backgroundColor: '#FFB6C1', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 10 },
   buttonText: { color: 'white', fontWeight: 'bold' },
   sectionTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 30, marginBottom: 10 },
-  picker: { backgroundColor: '#fff', marginVertical: 10, borderRadius: 5 }
+  picker: { backgroundColor: '#fff', marginBottom: 15, borderRadius: 5 }
 });
 
 export default HomeScreen;
