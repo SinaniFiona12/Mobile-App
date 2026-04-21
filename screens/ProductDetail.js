@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Button, Alert } from 'react-native';
 
 const ProductDetail = ({ route, navigation }) => {
   const { title, subtitle, price, image } = route.params;
@@ -9,6 +9,8 @@ const ProductDetail = ({ route, navigation }) => {
   const decrease = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
   const totalPrice = (price * quantity).toFixed(2);
+
+
 
   return (
     <ScrollView style={styles.container}>
@@ -30,6 +32,14 @@ const ProductDetail = ({ route, navigation }) => {
         <View style={styles.totalSection}>
           <Text style={styles.totalText}>Totaal: € {totalPrice}</Text>
         </View>
+
+        {/* DE "ADD TO CART" KNOP */}
+          <TouchableOpacity 
+            style={styles.addToCartButton} 
+            onPress={() => Alert.alert("Succes", `${quantity}x ${title} is toegevoegd!`)}
+          >
+  <Text style={styles.addToCartButtonText}>In winkelmandje</Text>
+          </TouchableOpacity>
 
         {/* Verplichte standaard Button voor docent */}
         <View style={{ marginTop: 25 }}>
@@ -55,7 +65,10 @@ const styles = StyleSheet.create({
   circleButtonText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
   quantity: { fontSize: 18, color: 'black', marginHorizontal: 20, fontWeight: 'bold' },
   totalSection: { marginTop: 10, paddingVertical: 15, borderTopWidth: 1, borderColor: '#a24e4e' },
-  totalText: { fontSize: 20, fontWeight: 'bold', color: '#a24e4e' },
+  totalText: {fontSize: 20, fontWeight: 'bold', color: '#a24e4e' }, addToCartButton: 
+  {backgroundColor: '#a24e4e', padding: 18, borderRadius: 8, alignItems: 'center', marginBottom: 10, elevation: 2,
+  },addToCartButtonText: {color: 'white',fontSize: 18, fontWeight: 'bold',
+  },
 });
 
 export default ProductDetail;
