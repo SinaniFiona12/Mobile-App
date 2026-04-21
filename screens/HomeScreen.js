@@ -14,73 +14,49 @@ const categoryNames = {
 
 const HomeScreen = ({ navigation }) => {
   const [isEnabled, setIsEnabled] = useState(false);
-  
   const [items, setItems] = useState([]);
-  
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("price-asc");
 
   useEffect(() => {
-   
     Promise.all([
       fetch("https://api.webflow.com/v2/sites/698c7fccd5523d8c665d8dee/products", {
         headers: { Authorization: "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48" }
       }).then(res => res.json()),
-      
       fetch("https://api.webflow.com/v2/collections/699efb39c644d9010bf09c68/items", {
         headers: { Authorization: "Bearer 8e2655f878897fc31247e18a55b595646d22de7d412e75fb3fd01c890fce8b48" }
       }).then(res => res.json())
     ])
     .then(([productsData, blogsData]) => {
-      
-      
       const formattedProducts = (productsData?.items || []).map((item) => {
         if (!item || !item.product) return null;
         return {
-          type: "product", 
-          id: item.product.id || Math.random().toString(),
-          title: item.product.fieldData?.name || "Naamloos product",
-          subtitle: item.product.fieldData?.description || "",
-          price: (item.skus?.[0]?.fieldData?.price?.value || 0) / 100, 
-          category: item.product.fieldData?.category 
-            ? categoryNames[item.product.fieldData.category[0]] || "Onbekende categorie" 
-            : "Onbekende categorie",
-          image: { uri: item.skus?.[0]?.fieldData?.["main-image"]?.url || null },
+          type: "product", id: item.product.id, title: item.product.fieldData?.name,
+          subtitle: item.product.fieldData?.description, price: (item.skus?.[0]?.fieldData?.price?.value || 0) / 100, 
+          category: item.product.fieldData?.category ? categoryNames[item.product.fieldData.category[0]] : "Onbekende categorie",
+          image: { uri: item.skus?.[0]?.fieldData?.["main-image"]?.url },
         };
       }).filter(p => p !== null);
 
-     
-const formattedBlogs = (blogsData?.items || []).map((item) => {
-  if (!item) return null;
-  return {
-    type: "blog",
-    id: item.id || Math.random().toString(),
-    title: item.fieldData?.name || "Naamloze blog",
-    
-    
-    description: item.fieldData?.["post-body"] || item.fieldData?.["content"] || "Geen tekst gevonden",
-    
-    price: 0,
-    category: "Blogs", 
-    image: { uri: item.fieldData?.["main-image"]?.url || null },
-  };
-}).filter(b => b !== null);
-
+      const formattedBlogs = (blogsData?.items || []).map((item) => {
+        if (!item) return null;
+        return {
+          type: "blog", id: item.id, title: item.fieldData?.name,
+          description: item.fieldData?.["post-body"] || item.fieldData?.["content"] || "Lees deze blog...",
+          price: 0, category: "Blogs", image: { uri: item.fieldData?.["main-image"]?.url },
+        };
+      }).filter(b => b !== null);
       
       setItems([...formattedProducts, ...formattedBlogs]);
-    })
-    .catch(error => console.error("Error fetching data:", error));
+    }).catch(err => console.error(err));
   }, []);
 
-  
-  const filteredItems = items.filter(
-    (item) =>
-      (selectedCategory === "" || item.category === selectedCategory) &&
-      (item.title || "").toLowerCase().includes((searchQuery || "").toLowerCase())
+  const filteredItems = items.filter(item => 
+    (selectedCategory === "" || item.category === selectedCategory) &&
+    (item.title || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (sortOption === "price-asc") return a.price - b.price;
     if (sortOption === "price-desc") return b.price - a.price;
@@ -89,33 +65,25 @@ const formattedBlogs = (blogsData?.items || []).map((item) => {
     return 0;
   });
 
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
   return (
     <ScrollView style={styles.scrollWindow} contentContainerStyle={styles.scrollContent}>
-      
       <View style={styles.header}>
-        <Text style={styles.headerText}>Mijn Mobile App</Text>
+        <Text style={styles.headerText}>Soie</Text>
       </View>
 
       <View style={styles.inputSection}>
         <Text style={styles.label}>Zoek een item:</Text>
-        <TextInput 
-          style={styles.input}
-          placeholder="Typ hier..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+        <TextInput style={styles.input} placeholder="Typ hier..." value={searchQuery} onChangeText={setSearchQuery} />
       </View>
 
       <View style={styles.row}>
-        <Text>Meldingen ontvangen?</Text>
-        <Switch onValueChange={toggleSwitch} value={isEnabled} />
+        <Text style={styles.label}>Meldingen ontvangen?</Text>
+        <Switch onValueChange={() => setIsEnabled(!isEnabled)} value={isEnabled} />
       </View>
 
       <Text style={styles.label}>Filter op categorie:</Text>
       <Picker selectedValue={selectedCategory} onValueChange={setSelectedCategory} style={styles.picker}>
-        <Picker.Item label="Alle items (Producten & Blogs)" value="" />
+        <Picker.Item label="Alle items" value="" />
         <Picker.Item label="Blogs" value="Blogs" />
         <Picker.Item label="Other" value="other" />
         <Picker.Item label="Brushes" value="Brushes" />
@@ -137,100 +105,30 @@ const formattedBlogs = (blogsData?.items || []).map((item) => {
 
       <Text style={styles.sectionTitle}>Overzicht ({sortedItems.length})</Text>
       
-      {sortedItems.map((item) => {
-        if (item.type === "product") {
-          return (
-            <ProductCard
-              key={item.id}
-              title={item.title}
-              description={item.subtitle}
-              price={item.price}
-              image={item.image}
-              onPress={() => navigation.navigate("ProductDetail", item)}
-            />
-          );
-        } else if (item.type === "blog") {
-          return (
-            <BlogCard
-              key={item.id}
-              title={item.title}
-              description={item.subtitle}
-              image={item.image}
-              onPress={() => navigation.navigate("BlogDetail", item)}
-            />
-          );
-        }
-      })}
-
+      {sortedItems.map((item) => (
+        item.type === "product" ? (
+          <ProductCard key={item.id} title={item.title} description={item.subtitle} price={item.price} image={item.image} onPress={() => navigation.navigate("ProductDetail", item)} />
+        ) : (
+          <BlogCard key={item.id} title={item.title} description={item.description} image={item.image} onPress={() => navigation.navigate("BlogDetail", item)} />
+        )
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollWindow: { 
-    flex: 1, 
-    backgroundColor: '#fff5ef' // Jouw 'Soie' achtergrondkleur
-  },
-  scrollContent: { 
-    padding: 20, 
-    paddingTop: 50, 
-    paddingBottom: 100 
-  },
-  header: { 
-    alignItems: 'center', 
-    marginBottom: 20 
-  },
-  headerText: { 
-    fontSize: 32, // Iets groter gemaakt voor een mooie titel
-    fontWeight: '300', // Licht lettertype (simuleert CMU Extra Light)
-    color: '#a24e4e' // Jouw titelkleur
-  },
-  label: { 
-    fontWeight: '400', // Simuleert Muli Normal
-    color: 'black', // Jouw tekstkleur
-    marginTop: 10, 
-    marginBottom: 5 
-  },
-  inputSection: { 
-    marginVertical: 10 
-  },
-  input: { 
-    height: 40, 
-    borderColor: '#a24e4e', // Lijn in jouw kleur
-    borderBottomWidth: 1, 
-    paddingHorizontal: 10, 
-    backgroundColor: '#fff', 
-    borderRadius: 5 
-  },
-  row: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginVertical: 10 
-  },
-  button: { 
-    backgroundColor: '#a24e4e', 
-    padding: 15, 
-    borderRadius: 5, 
-    alignItems: 'center', 
-    marginTop: 10 
-  },
-  buttonText: { 
-    color: '#FFFFFF', 
-    fontWeight: '400' 
-  },
-  sectionTitle: { 
-    fontSize: 22, 
-    fontWeight: '300', 
-    color: '#a24e4e', 
-    marginTop: 30, 
-    marginBottom: 10 
-  },
-  picker: { 
-    backgroundColor: '#fff', 
-    marginBottom: 15, 
-    borderRadius: 5 
-  }
+  scrollWindow: { flex: 1, backgroundColor: '#fff5ef' },
+  scrollContent: { padding: 20, paddingTop: 30, paddingBottom: 100 },
+  header: { alignItems: 'center', marginBottom: 20 },
+  headerText: { fontSize: 36, fontWeight: '300', color: '#a24e4e' },
+  label: { color: 'black', fontWeight: '400', marginTop: 10, marginBottom: 5 },
+  inputSection: { marginVertical: 10 },
+  input: { height: 40, borderColor: '#a24e4e', borderBottomWidth: 1, paddingHorizontal: 10, backgroundColor: '#fff', borderRadius: 5 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 },
+  button: { backgroundColor: '#a24e4e', padding: 15, borderRadius: 5, alignItems: 'center', marginTop: 10 },
+  buttonText: { color: '#FFFFFF', fontWeight: '400' },
+  sectionTitle: { fontSize: 22, fontWeight: '300', color: '#a24e4e', marginTop: 30, marginBottom: 15 },
+  picker: { backgroundColor: '#fff', marginBottom: 15, borderRadius: 5 }
 });
 
 export default HomeScreen;

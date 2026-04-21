@@ -16,23 +16,12 @@ export default function App() {
         screenOptions={{
           headerStyle: { backgroundColor: '#fff5ef' }, 
           headerTintColor: '#a24e4e', 
+          headerTitleStyle: { fontWeight: '300' }
         }}
       >
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ title: 'Soie' }} 
-        />
-        <Stack.Screen 
-          name="ProductDetail" 
-          component={ProductDetail} 
-          options={{ title: 'Product Details' }} 
-        />
-        <Stack.Screen 
-          name="BlogDetail" 
-          component={BlogDetail} 
-          options={{ title: 'Blog Artikel' }} 
-        />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Soie' }} />
+        <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ title: 'Product Details' }} />
+        <Stack.Screen name="BlogDetail" component={BlogDetail} options={{ title: 'Blog Artikel' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
